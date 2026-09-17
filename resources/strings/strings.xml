@@ -1,0 +1,44 @@
+<strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
+    <string id="AppName">Naked Run</string>
+
+    <!-- Start screen. The wordmark is split over two lines on purpose: it is
+         the largest thing in the app and "NAKEDRUN" on one line would have to
+         shrink to fit a 176 px screen. -->
+    <string id="WordmarkTop">NAKED</string>
+    <string id="WordmarkBottom">RUN</string>
+    <string id="Tagline">we track it. you just run.</string>
+    <string id="HintStart">SELECT to start</string>
+    <string id="HintSearching">searching for GPS</string>
+
+    <!-- The GPS gate. -->
+    <string id="GpsTitle">WAIT FOR GPS</string>
+    <string id="GpsBody">it won't start without a fix. this is the one thing you can't check mid-run.</string>
+    <string id="GpsHintCancel">BACK to cancel</string>
+
+    <!-- In-run. Nothing here is a number. -->
+    <string id="StatePaused">PAUSED</string>
+    <string id="HintResume">SELECT to resume</string>
+
+    <!-- Summary. Stat labels are short because the 2x2 grid gives each cell
+         less than half the screen width. -->
+    <string id="SummaryTitle">RUN COMPLETE</string>
+    <string id="SummaryDiscarded">RUN DISCARDED</string>
+    <string id="LabelDistance">DISTANCE</string>
+    <string id="LabelPace">AVG PACE</string>
+    <string id="LabelHeartRate">AVG HR</string>
+    <string id="LabelMaxHeartRate">MAX HR</string>
+    <string id="HintDone">SELECT for start</string>
+
+    <!-- Units. Pace carries its own per-unit suffix so the grid cell can show
+         "5:24 /km" without a second label. -->
+    <string id="UnitPerKm">/km</string>
+    <string id="UnitPerMi">/mi</string>
+    <string id="UnitBpm">bpm</string>
+
+    <!-- In-activity menu. -->
+    <string id="ActivityMenuTitle">MENU</string>
+    <string id="MenuResume">Resume</string>
+    <string id="MenuEndActivity">End Run</string>
+    <string id="MenuDiscardActivity">Discard Run</string>
+    <string id="DiscardConfirmMessage">Discard this run? It will not be saved.</string>
+</strings>
