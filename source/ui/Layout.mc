@@ -17,6 +17,8 @@ class Layout {
     var markWidth as Number;
     var wordmarkCenterY as Number;
     var taglineY as Number;
+    var gpsStatusY as Number;
+    var gpsDotsY as Number;
 
     // Run screen.
     var quoteBandTop as Number;
@@ -39,10 +41,12 @@ class Layout {
         if (metrics.isRound) {
             _inset = metrics.px(20);
 
-            markCenterY = metrics.px(94);
-            markWidth = metrics.px(80);
-            wordmarkCenterY = metrics.px(206);
-            taglineY = metrics.px(284);
+            gpsStatusY = metrics.px(38);
+            gpsDotsY = metrics.px(76);
+            markCenterY = metrics.px(134);
+            markWidth = metrics.px(64);
+            wordmarkCenterY = metrics.px(244);
+            taglineY = metrics.px(322);
 
             quoteBandTop = metrics.px(96);
             quoteBandBottom = metrics.height - metrics.px(96);
@@ -59,10 +63,12 @@ class Layout {
         } else {
             _inset = metrics.px(14);
 
-            markCenterY = metrics.px(72);
-            markWidth = metrics.px(72);
-            wordmarkCenterY = metrics.px(186);
-            taglineY = metrics.px(258);
+            gpsStatusY = metrics.px(24);
+            gpsDotsY = metrics.px(80);
+            markCenterY = metrics.px(152);
+            markWidth = metrics.px(58);
+            wordmarkCenterY = metrics.px(292);
+            taglineY = metrics.px(388);
 
             quoteBandTop = metrics.px(56);
             quoteBandBottom = metrics.height - metrics.px(70);
@@ -108,4 +114,5 @@ class Layout {
     function safeWidthForLine(metrics as ScreenMetrics, topY as Number, lineHeight as Number) as Number {
         return 2 * safeHalfWidth(metrics, topY, topY + lineHeight);
     }
+
 }

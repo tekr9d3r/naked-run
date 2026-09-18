@@ -5,7 +5,7 @@ import Toybox.WatchUi;
 // The state machine, the clock, and the two side effects (recording, quote
 // rotation) that the screens are not allowed to touch.
 //
-//   START -> RUN <-> PAUSED -> SUMMARY -> START
+//   START -> [ACQUIRING] -> RUN <-> PAUSED -> SUMMARY -> START
 //
 // It holds exactly one number the UI may read while running - the tick count -
 // and that number drives the quote rotation and the blink of the recording
@@ -24,9 +24,10 @@ class RunController {
     private var _ticks as Number;
     private var _quoteIndex as Number;
 
-    // Counts only the seconds spent on the GPS gate, so waiting for a fix
-    // never leaks into the run's own clock or its quote rotation.
-    private var _acquireTicks as Number;
+    // Counts seconds spent waiting for a fix, on the start screen and on the
+    // gate alike. It drives the searching indicator in both places and never
+    // leaks into the run's own clock or its quote rotation.
+    private var _searchTicks as Number;
 
     private var _summary as RunSummary?;
     private var _endReason as Number;
@@ -40,7 +41,7 @@ class RunController {
         _gps = new GpsStatus();
         _ticks = 0;
         _quoteIndex = 0;
-        _acquireTicks = 0;
+        _searchTicks = 0;
         _summary = null;
         _endReason = RunConstants.END_SAVED;
     }
@@ -63,7 +64,10 @@ class RunController {
             beginRecording();
             return;
         }
-        _acquireTicks = 0;
+        // _searchTicks deliberately keeps counting rather than resetting: the
+        // dots were already sweeping on the start screen and this is the same
+        // wait continuing, so restarting the animation here would read as a
+        // stutter at the exact moment the user is watching it.
         state = RunConstants.STATE_ACQUIRING;
         startClock();
         WatchUi.requestUpdate();
@@ -73,8 +77,8 @@ class RunController {
         if (state != RunConstants.STATE_ACQUIRING) {
             return;
         }
-        stopClock();
         state = RunConstants.STATE_START;
+        syncSearchClock();
         WatchUi.requestUpdate();
     }
 
@@ -148,7 +152,30 @@ class RunController {
 
     function returnToStart() as Void {
         state = RunConstants.STATE_START;
+        syncSearchClock();
         WatchUi.requestUpdate();
+    }
+
+    // Called when the root view appears, which is the first moment a timer has
+    // a view to redraw.
+    function onViewShown() as Void {
+        syncSearchClock();
+    }
+
+    // The start screen would otherwise have no clock at all, leaving the
+    // searching dots frozen mid-sweep - which looks exactly like the hung app
+    // the indicator exists to rule out. So the tick runs while a fix is
+    // missing and stops the moment one lands: there is nothing left to animate
+    // then, and a 1 Hz wakeup on an idle screen is not free.
+    private function syncSearchClock() as Void {
+        if (state != RunConstants.STATE_START) {
+            return;
+        }
+        if (_gps.isReady()) {
+            stopClock();
+        } else {
+            startClock();
+        }
     }
 
     // If the watch tears the app down mid-run - low battery, a long press out,
@@ -181,11 +208,23 @@ class RunController {
     }
 
     function onTick() as Void {
+        // On the start screen the clock only animates the searching dots, and
+        // retires itself as soon as the fix it is waiting on arrives.
+        if (state == RunConstants.STATE_START) {
+            if (_gps.isReady()) {
+                stopClock();
+            } else {
+                _searchTicks += 1;
+            }
+            WatchUi.requestUpdate();
+            return;
+        }
+
         // On the gate the clock's only job is to animate the search and to
         // notice the instant a fix arrives, at which point the run the runner
         // already asked for begins by itself.
         if (state == RunConstants.STATE_ACQUIRING) {
-            _acquireTicks += 1;
+            _searchTicks += 1;
             if (_gps.isReady()) {
                 beginRecording();
             } else {
@@ -217,9 +256,9 @@ class RunController {
         return _gps.isReady();
     }
 
-    // Drives the sweep of the searching indicator on the gate.
-    function acquireTicks() as Number {
-        return _acquireTicks;
+    // Drives the searching indicator on the start screen and the gate.
+    function searchTicks() as Number {
+        return _searchTicks;
     }
 
     function summary() as RunSummary? {

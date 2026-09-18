@@ -12,6 +12,12 @@ class RunView extends WatchUi.View {
         View.initialize();
     }
 
+    // The searching dots on the start screen need a clock, and this is the
+    // first point at which there is a view for one to redraw.
+    function onShow() as Void {
+        getApp().controller.onViewShown();
+    }
+
     function onUpdate(dc as Dc) as Void {
         // True black every frame, on every screen. It is the ground the whole
         // design sits on and the cheapest pixel an AMOLED can draw - which

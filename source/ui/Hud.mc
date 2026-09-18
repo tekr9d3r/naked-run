@@ -77,10 +77,21 @@ module Hud {
     // the width its own top line actually gets, and only the second answer is
     // the one that stays inside the bezel.
     function drawQuoteBlock(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, text as String, bandTop as Number, bandBottom as Number) as Void {
+        drawWrappedBlock(dc, metrics, layout, text, bandTop, bandBottom, 4);
+    }
+
+    // The same fitting, with a ceiling on how large it may set.
+    //
+    // The ceiling matters for short strings. The loop below takes the largest
+    // tier that *fits*, which for a quote is the point - but a two-word line
+    // of supporting copy fits at the largest tier too, and would then set
+    // bigger than the heading above it. The quote is the only text in this app
+    // allowed to be the loudest thing on its screen.
+    function drawWrappedBlock(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, text as String, bandTop as Number, bandBottom as Number, maxTier as Number) as Void {
         var bandHeight = bandBottom - bandTop;
         var bandCenter = (bandTop + bandBottom) / 2;
 
-        for (var tier = 4; tier >= 0; tier -= 1) {
+        for (var tier = maxTier; tier >= 0; tier -= 1) {
             var font = metrics.fontFor(tier);
             var lineH = dc.getFontHeight(font);
 
@@ -115,6 +126,31 @@ module Hud {
     function drawLines(dc as Graphics.Dc, metrics as ScreenMetrics, lines as Array<String>, font as Graphics.FontType, top as Number, lineH as Number) as Void {
         for (var i = 0; i < lines.size(); i += 1) {
             dc.drawText(metrics.centerX, top + i * lineH, font, lines[i], Graphics.TEXT_JUSTIFY_CENTER);
+        }
+    }
+
+    // The searching indicator, shared by the start screen and the GPS gate so
+    // that "the watch is looking for satellites" reads identically wherever it
+    // appears.
+    //
+    // One dot lit at a time, travelling left to right, rather than three
+    // blinking together. A sweep has a direction and direction is what makes
+    // it read as *working*; a synchronised blink reads as a warning light,
+    // which is the wrong feeling for something that is simply taking a moment.
+    //
+    // Discrete steps, no fade - same reason as the recording dot: a MIP panel
+    // would band a fade, and the visible step is the whole point.
+    const SEARCH_DOT_COUNT = 3;
+
+    function drawSearchDots(dc as Graphics.Dc, metrics as ScreenMetrics, centerY as Number, ticks as Number, radius as Number, spacing as Number) as Void {
+        var r = (radius < 2) ? 2 : radius;
+        var active = ticks % SEARCH_DOT_COUNT;
+        var startX = metrics.centerX - (spacing * (SEARCH_DOT_COUNT - 1)) / 2;
+
+        for (var i = 0; i < SEARCH_DOT_COUNT; i += 1) {
+            dc.setColor((i == active) ? Palette.AMBER : Palette.CHARCOAL,
+                Graphics.COLOR_TRANSPARENT);
+            dc.fillCircle(startX + i * spacing, centerY, r);
         }
     }
 

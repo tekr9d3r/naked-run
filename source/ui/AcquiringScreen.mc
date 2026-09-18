@@ -19,8 +19,6 @@ import Toybox.Lang;
 // sky.
 module AcquiringScreen {
 
-    const DOT_COUNT = 4;
-
     function draw(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, controller as RunController) as Void {
         var titleY = metrics.centerY - metrics.px(96);
         dc.setColor(Palette.AMBER, Graphics.COLOR_TRANSPARENT);
@@ -28,13 +26,17 @@ module AcquiringScreen {
             WatchUi.loadResource(Rez.Strings.GpsTitle) as String,
             layout.safeWidthForLine(metrics, titleY, metrics.px(34)));
 
-        drawSweep(dc, metrics, controller.acquireTicks());
+        // The same indicator as the start screen, just larger - the wait
+        // carried over from there, so it should look like the same wait.
+        Hud.drawSearchDots(dc, metrics, metrics.centerY - metrics.px(14),
+            controller.searchTicks(), metrics.px(8), metrics.px(30));
 
+        // Capped a tier below the heading so it stays supporting copy.
         var bodyTop = metrics.centerY + metrics.px(26);
         dc.setColor(Palette.GREY, Graphics.COLOR_TRANSPARENT);
-        Hud.drawQuoteBlock(dc, metrics, layout,
+        Hud.drawWrappedBlock(dc, metrics, layout,
             WatchUi.loadResource(Rez.Strings.GpsBody) as String,
-            bodyTop, layout.hintY - metrics.px(8));
+            bodyTop, layout.hintY - metrics.px(8), 1);
 
         Hud.drawFitCenteredText(dc, metrics, layout.hintY, 0,
             WatchUi.loadResource(Rez.Strings.GpsHintCancel) as String,
@@ -43,22 +45,4 @@ module AcquiringScreen {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     }
 
-    // An indeterminate sweep rather than a progress bar, because acquiring a
-    // fix has no progress to report - it either lands or it doesn't, and a
-    // bar creeping toward a finish it cannot predict would be a lie.
-    function drawSweep(dc as Graphics.Dc, metrics as ScreenMetrics, ticks as Number) as Void {
-        var radius = metrics.px(8);
-        if (radius < 2) {
-            radius = 2;
-        }
-        var spacing = metrics.px(30);
-        var active = ticks % DOT_COUNT;
-        var startX = metrics.centerX - (spacing * (DOT_COUNT - 1)) / 2;
-
-        for (var i = 0; i < DOT_COUNT; i += 1) {
-            dc.setColor((i == active) ? Palette.AMBER : Palette.CHARCOAL,
-                Graphics.COLOR_TRANSPARENT);
-            dc.fillCircle(startX + i * spacing, metrics.centerY - metrics.px(14), radius);
-        }
-    }
 }

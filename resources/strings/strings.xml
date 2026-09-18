@@ -7,12 +7,12 @@
     <string id="WordmarkTop">NAKED</string>
     <string id="WordmarkBottom">RUN</string>
     <string id="Tagline">we track it. you just run.</string>
-    <string id="HintStart">SELECT to start</string>
-    <string id="HintSearching">searching for GPS</string>
 
-    <!-- The GPS gate. -->
+    <!-- GPS. The title is shared: the start screen shows it as a status
+         at the top, the gate shows it as its heading, and they should not be
+         able to drift into saying two different things. -->
     <string id="GpsTitle">WAIT FOR GPS</string>
-    <string id="GpsBody">it won't start without a fix. this is the one thing you can't check mid-run.</string>
+    <string id="GpsBody">no signal yet. hang tight.</string>
     <string id="GpsHintCancel">BACK to cancel</string>
 
     <!-- In-run. Nothing here is a number. -->
