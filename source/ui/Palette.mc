@@ -31,5 +31,13 @@ module Palette {
     const AMBER_DIM = 0xC9974A;   // secondary accent: stat labels, the tagline
 
     const BONE = 0xEFEAE1;        // the quote, and the hero stat
-    const GREY = 0x76777A;        // hints, and the dot at its dimmest
+    const GREY = 0x76777A;        // hints, labels, unlit states
+
+    // The recording light, and the only red anywhere in this app - so it
+    // never stops meaning "this run is being recorded". Red rather than the
+    // amber accent because every camera, every dashcam and every studio door
+    // already agreed on what a blinking red light means, and a run screen
+    // showing no numbers has nothing else to lean on.
+    const RECORD = 0xE5392B;
+    const RECORD_OFF = 0x4A1210;  // the dark half of the blink
 }

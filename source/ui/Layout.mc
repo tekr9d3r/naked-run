@@ -23,7 +23,8 @@ class Layout {
     // Run screen.
     var quoteBandTop as Number;
     var quoteBandBottom as Number;
-    var dotCenterY as Number;
+    // The recording light and its label, as one centred row.
+    var recordingY as Number;
 
     // Summary screen.
     var summaryMarkCenterY as Number;
@@ -50,7 +51,7 @@ class Layout {
 
             quoteBandTop = metrics.px(96);
             quoteBandBottom = metrics.height - metrics.px(96);
-            dotCenterY = metrics.height - metrics.px(62);
+            recordingY = metrics.height - metrics.px(76);
 
             summaryMarkCenterY = metrics.px(38);
             summaryMarkWidth = metrics.px(24);
@@ -72,7 +73,7 @@ class Layout {
 
             quoteBandTop = metrics.px(56);
             quoteBandBottom = metrics.height - metrics.px(70);
-            dotCenterY = metrics.height - metrics.px(42);
+            recordingY = metrics.height - metrics.px(52);
 
             summaryMarkCenterY = metrics.px(34);
             summaryMarkWidth = metrics.px(22);

@@ -28,8 +28,10 @@ module RunConstants {
     // v1.1 notes in the README.
     const QUOTE_INTERVAL_SEC = 420;
 
-    // The recording dot breathes over this many ticks.
-    const DOT_CYCLE_SEC = 3;
+    // The recording light blinks over this many ticks - on, off, on. Two
+    // rather than the three brightness steps it used to fade through: a
+    // recording light is a binary thing and should look like one.
+    const DOT_CYCLE_SEC = 2;
 
     // Only quotes rotate while running; pausing freezes the line so coming
     // back from a stop at a crossing doesn't land you on a new one mid-thought.

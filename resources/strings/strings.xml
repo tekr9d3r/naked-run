@@ -16,6 +16,7 @@
     <string id="GpsHintCancel">BACK to cancel</string>
 
     <!-- In-run. Nothing here is a number. -->
+    <string id="StateRecording">REC</string>
     <string id="StatePaused">PAUSED</string>
     <string id="HintResume">SELECT to resume</string>
 

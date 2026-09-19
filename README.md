@@ -7,7 +7,8 @@ It starts an ordinary FIT-recorded run — GPS, pace, heart rate, distance,
 cadence — so the activity lands in Garmin Connect exactly like one started
 from the watch's own Run app. What's different is the screen during the run:
 no pace, no distance, no time, no heart rate. Just a short line of text that
-changes every few minutes, and a small dot telling you it's still recording.
+changes every few minutes, and a blinking red light telling you it's
+recording.
 
 The numbers all arrive at once, on the summary screen, after you stop.
 
@@ -15,14 +16,16 @@ The numbers all arrive at once, on the summary screen, after you stop.
 
 ## The loop
 
-1. **Start screen** — the footprint mark, the wordmark, the tagline. The
-   prompt doubles as the GPS indicator: grey `SELECT to start` once there's a
-   fix, amber `searching for GPS` while there isn't.
+1. **Start screen** — the footprint mark, the wordmark, the tagline. While
+   there's no fix, `WAIT FOR GPS` and three sweeping dots sit at the top; once
+   there is one they vanish, since "GPS is fine" isn't news worth a line of
+   type. A short arc on the bezel at two o'clock marks the physical START
+   button — grey while waiting, amber once a press will start a run.
 2. **GPS gate** — only if you press SELECT before a fix has landed. Holds until
    it does, then starts the run by itself. BACK cancels.
 3. **Run screen** — one quote, centred and set as large as the glass allows,
-   plus a dot near the bottom that breathes once a second. Nothing else. The
-   quote changes every 7 minutes.
+   plus `( ) REC` near the bottom, the light blinking once a second. Nothing
+   else. The quote changes every 7 minutes.
 4. **Stop** — MENU or BACK opens the standard in-activity menu: Resume, End
    Run, Discard Run. Ending pauses nothing and loses nothing; discarding asks
    for confirmation first.
@@ -30,8 +33,18 @@ The numbers all arrive at once, on the summary screen, after you stop.
    avg pace, avg HR and max HR in a 2x2 grid.
 
 SELECT mid-run pauses. The paused screen keeps the quote where it was, dimmed,
-and swaps the dot for the word PAUSED — still no numbers, because a pause is
-not a moment to sneak a split in.
+and swaps the recording row for the word PAUSED — still no numbers, because a
+pause is not a moment to sneak a split in.
+
+**The recording light is the one red in the app**, so it never stops meaning
+"this run is being recorded". It blinks rather than fades: a recording light
+is a binary thing, a MIP panel would band a fade anyway, and the hard step is
+what proves the clock behind it is still running — a frozen app and a
+motionless indicator look identical. The earlier version was an amber dot
+shading through three brightness steps, which asked the runner to decode a
+colour and couldn't say what it was the status *of*. On pause the light does
+not merely stop, it disappears; a light that has stopped moving is ambiguous,
+and that is the one distinction on this screen that has to be unmistakable.
 
 ## Why the run screen is empty in the strong sense
 
@@ -42,7 +55,7 @@ can't quietly erode by adding "just one" field.
 
 The only number the run screen has access to is the controller's tick count,
 and it uses it for two things: deciding when to change the quote, and blinking
-the dot.
+the recording light.
 
 ## The GPS gate
 
