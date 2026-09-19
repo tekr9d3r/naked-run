@@ -1,7 +1,7 @@
 # Naked Run
 
 A running app for Garmin watches that records everything and shows you
-nothing.
+nothing. Outdoor running only — it will not start without a GPS fix.
 
 It starts an ordinary FIT-recorded run — GPS, pace, heart rate, distance,
 cadence — so the activity lands in Garmin Connect exactly like one started
@@ -84,9 +84,16 @@ the watch that everything else here is trying to break. A sweep of dots says
 "working on it", which is all that's actionable — wait, or walk into clearer
 sky.
 
-**Consequence worth knowing:** this also blocks treadmill and indoor runs,
-which will never get a fix. If that turns out to matter, the fix is an explicit
-indoor mode on the start screen rather than a way to bypass the gate.
+**This app is for outdoor running only, by design.** Treadmill and indoor runs
+will never get a fix and so can never start, and that is a deliberate scope
+decision rather than a gap to be filled later. The whole premise is that you
+run without looking at numbers because the watch is capturing them — and
+without GPS there is no route, no distance and no pace to capture. An indoor
+mode would be a different app wearing this one's name.
+
+Say so in the store description: someone who installs this for treadmill use
+has been mis-sold, and that is the one complaint the gate cannot answer for
+itself.
 
 ## Design decisions worth knowing
 
@@ -248,6 +255,3 @@ loop solid first:
 - **Long-press for one glance** — an explicit, deliberate peek at elapsed
   time, for the runner who needs to make a train. Arguably against the point
   of the app; worth an argument before building.
-- **Indoor / treadmill mode** — an explicit choice on the start screen that
-  records without GPS, since the gate currently blocks that case outright. The
-  right shape is a second way *in*, never a bypass of the gate.
