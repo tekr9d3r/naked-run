@@ -28,6 +28,14 @@
     <string id="LabelPace">AVG PACE</string>
     <string id="LabelHeartRate">AVG HR</string>
     <string id="LabelMaxHeartRate">MAX HR</string>
+
+    <!-- Short forms, used where a grid cell is too narrow for the full label
+         even at the smallest font. The bottom row sits low on a round screen
+         and gets noticeably less width than the row above it. -->
+    <string id="LabelDistanceShort">DIST</string>
+    <string id="LabelPaceShort">PACE</string>
+    <string id="LabelHeartRateShort">AVG</string>
+    <string id="LabelMaxHeartRateShort">MAX</string>
     <string id="HintDone">SELECT for start</string>
 
     <!-- Units. Pace carries its own per-unit suffix so the grid cell can show

@@ -2,47 +2,137 @@ import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
 
-// The footprints, the wordmark, the promise, and how to begin. No numbers - not
-// even a clock, because a screen that shows you the time is already the thing
-// this app is trying not to be.
+// The footprints, the wordmark, the promise, and how to begin. No numbers -
+// not even a clock, because a screen that shows you the time is already the
+// thing this app is trying not to be.
+//
+// LAYOUT
+//
+// This screen stacks itself from measured heights instead of fixed anchors,
+// for the same reason the summary does: Garmin's fonts do not scale with the
+// screen. Measured on the extremes of the target list -
+//
+//                  XTINY  LARGE   "NAKED"   the tagline
+//      fr55 208px     22     34      80px        178px
+//     fenix 416px     28     59     158px        247px
+//
+// - the tagline is 178 px wide on a 208 px watch whose widest usable chord is
+// 188 px and whose chord at the bottom of the screen is barely half that. So
+// it can never sit under the wordmark there, while on a 416 px screen it fits
+// comfortably. One set of px() constants cannot say both things, and trying
+// made the search dots print through the status text above them.
+//
+// So: the status line and its dots are pinned to the top and their positions
+// derived from the measured text, and everything below them - mark, wordmark
+// and tagline - is measured, stacked, and then centred in what is left. Where
+// the tagline does not fit it is dropped and the remaining two re-centre,
+// which is why the mark sits lower on a small screen than a large one.
 module StartScreen {
 
     function draw(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, controller as RunController) as Void {
         var ready = controller.isGpsReady();
-
-        if (!ready) {
-            drawGpsStatus(dc, metrics, layout, controller.searchTicks());
+        var gap = metrics.px(12);
+        var dotRadius = metrics.px(5);
+        if (dotRadius < 2) {
+            dotRadius = 2;
         }
 
-        FootprintMark.drawPair(dc, metrics.centerX, layout.markCenterY, layout.markWidth,
-            Palette.AMBER);
+        // The dots hang below the status text by its own measured height.
+        // Pinning them to a px() offset is what let them overlap the letters.
+        var dotsY = layout.gpsStatusY + dc.getFontHeight(metrics.fontFor(0)) + gap + dotRadius;
 
-        drawWordmark(dc, metrics, layout);
+        if (!ready) {
+            dc.setColor(Palette.AMBER_DIM, Graphics.COLOR_TRANSPARENT);
+            Hud.drawFitCenteredText(dc, metrics, layout.gpsStatusY, 0,
+                WatchUi.loadResource(Rez.Strings.GpsTitle) as String,
+                layout.safeWidthForLine(metrics, layout.gpsStatusY,
+                    dc.getFontHeight(metrics.fontFor(0))));
+            Hud.drawSearchDots(dc, metrics, dotsY, controller.searchTicks(),
+                dotRadius, metrics.px(16));
+        }
 
-        dc.setColor(Palette.AMBER_DIM, Graphics.COLOR_TRANSPARENT);
-        Hud.drawFitCenteredText(dc, metrics, layout.taglineY, 1,
-            WatchUi.loadResource(Rez.Strings.Tagline) as String,
-            layout.safeWidthForLine(metrics, layout.taglineY, metrics.px(30)));
+        // The top of the stack is reserved whether or not the status is
+        // showing, so nothing jumps when the fix finally lands.
+        var contentTop = dotsY + dotRadius + metrics.px(14);
+        drawStack(dc, metrics, layout, contentTop, gap);
 
         drawStartMark(dc, metrics, layout, ready);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
     }
 
-    // The fix status, at the top and out of the way. It is a status, not an
-    // instruction, so it sits where a watch puts status rather than where it
-    // puts a prompt - and when there is a fix it is absent entirely, because
-    // "GPS is fine" is not news worth a line of type.
-    //
-    // The moving dots are the difference between "this watch is searching" and
-    // "this watch is stuck". Static text alone cannot tell those apart, and
-    // the wait is exactly when someone starts wondering whether it has hung.
-    function drawGpsStatus(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, ticks as Number) as Void {
-        dc.setColor(Palette.AMBER_DIM, Graphics.COLOR_TRANSPARENT);
-        Hud.drawFitCenteredText(dc, metrics, layout.gpsStatusY, 0,
-            WatchUi.loadResource(Rez.Strings.GpsTitle) as String,
-            layout.safeWidthForLine(metrics, layout.gpsStatusY, metrics.px(24)));
+    // Mark, wordmark and - if there is room for it - tagline, measured and
+    // centred in the band beneath the status line.
+    function drawStack(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, contentTop as Number, gap as Number) as Void {
+        // FootprintMark's box is declared in Floats, so this is explicitly
+        // brought back to whole pixels before anything is positioned off it.
+        var markHeight = (layout.markWidth * FootprintMark.PAIR_HEIGHT
+            / FootprintMark.PAIR_WIDTH).toNumber();
+        var wordTier = fitWordmarkTier(dc, metrics, layout);
+        var wordHeight = 2 * dc.getFontHeight(metrics.fontFor(wordTier));
 
-        Hud.drawSearchDots(dc, metrics, layout.gpsDotsY, ticks, metrics.px(5), metrics.px(16));
+        var band = layout.contentBottom - contentTop;
+        var coreHeight = markHeight + gap + wordHeight;
+        var taglineBand = band - coreHeight - gap;
+
+        var text = WatchUi.loadResource(Rez.Strings.Tagline) as String;
+        var showTagline = taglineBand > 0
+            && Hud.wrappedFits(dc, metrics, layout, text,
+                layout.contentBottom - taglineBand, layout.contentBottom, 1);
+
+        // With a tagline the stack fills the band from the top; without one
+        // the remaining two centre themselves, which is what drops the mark
+        // and wordmark lower on the screens that cannot take the tagline.
+        var top = showTagline ? contentTop : contentTop + (band - coreHeight) / 2;
+        if (top < contentTop) {
+            top = contentTop;
+        }
+
+        FootprintMark.drawPair(dc, metrics.centerX, top + markHeight / 2,
+            layout.markWidth, Palette.AMBER);
+        drawWordmark(dc, metrics, top + markHeight + gap, wordTier);
+
+        if (showTagline) {
+            dc.setColor(Palette.AMBER_DIM, Graphics.COLOR_TRANSPARENT);
+            Hud.drawWrappedBlock(dc, metrics, layout, text,
+                layout.contentBottom - taglineBand, layout.contentBottom, 1);
+        }
+    }
+
+    // The wider of the two words decides the tier, so they set at the same
+    // size rather than "RUN" ending up a step larger than "NAKED". Measured
+    // against the widest chord the block could occupy, which is generous -
+    // the wordmark sits near the middle of the glass, where the circle is at
+    // its widest anyway.
+    function fitWordmarkTier(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout) as Number {
+        var top = WatchUi.loadResource(Rez.Strings.WordmarkTop) as String;
+        var bottom = WatchUi.loadResource(Rez.Strings.WordmarkBottom) as String;
+        var available = 2 * layout.safeHalfWidth(metrics, metrics.centerY, metrics.centerY);
+
+        var tier = 4;
+        while (tier > 0
+                && (dc.getTextWidthInPixels(top, metrics.fontFor(tier)) > available
+                    || dc.getTextWidthInPixels(bottom, metrics.fontFor(tier)) > available)) {
+            tier -= 1;
+        }
+        return tier;
+    }
+
+    // Two lines. "NAKED RUN" on one would have to shrink to about half this
+    // size to fit a 208 px screen, and the wordmark is the loudest thing in
+    // the app.
+    function drawWordmark(dc as Graphics.Dc, metrics as ScreenMetrics, blockTop as Number, tier as Number) as Void {
+        var font = metrics.fontFor(tier);
+        var lineHeight = dc.getFontHeight(font);
+
+        dc.setColor(Palette.BONE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(metrics.centerX, blockTop, font,
+            WatchUi.loadResource(Rez.Strings.WordmarkTop) as String,
+            Graphics.TEXT_JUSTIFY_CENTER);
+
+        dc.setColor(Palette.AMBER, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(metrics.centerX, blockTop + lineHeight, font,
+            WatchUi.loadResource(Rez.Strings.WordmarkBottom) as String,
+            Graphics.TEXT_JUSTIFY_CENTER);
     }
 
     // The button hint: a curved stroke hugging the bezel alongside the
@@ -92,36 +182,5 @@ module StartScreen {
         }
 
         dc.setPenWidth(1);
-    }
-
-    // Two lines, set as large as the circle allows and centred as a block.
-    // "NAKED RUN" on one line would have to shrink to about half this size to
-    // fit a 176 px screen, and the wordmark is the loudest thing in the app.
-    function drawWordmark(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout) as Void {
-        var top = WatchUi.loadResource(Rez.Strings.WordmarkTop) as String;
-        var bottom = WatchUi.loadResource(Rez.Strings.WordmarkBottom) as String;
-
-        var font = metrics.fontFor(4);
-        var lineH = dc.getFontHeight(font);
-        var blockTop = layout.wordmarkCenterY - lineH;
-
-        // The wider of the two words decides the tier, so they set at the
-        // same size rather than "RUN" ending up a step larger than "NAKED".
-        var available = 2 * layout.safeHalfWidth(metrics, blockTop, blockTop + 2 * lineH);
-        var tier = 4;
-        while (tier > 0
-                && (dc.getTextWidthInPixels(top, metrics.fontFor(tier)) > available
-                    || dc.getTextWidthInPixels(bottom, metrics.fontFor(tier)) > available)) {
-            tier -= 1;
-        }
-
-        font = metrics.fontFor(tier);
-        lineH = dc.getFontHeight(font);
-        blockTop = layout.wordmarkCenterY - lineH;
-
-        dc.setColor(Palette.BONE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(metrics.centerX, blockTop, font, top, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.setColor(Palette.AMBER, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(metrics.centerX, blockTop + lineH, font, bottom, Graphics.TEXT_JUSTIFY_CENTER);
     }
 }

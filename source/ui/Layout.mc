@@ -12,13 +12,12 @@ import Toybox.Math;
 // chord width properly instead of guessing an inset.
 class Layout {
 
-    // Start screen.
-    var markCenterY as Number;
-    var markWidth as Number;
-    var wordmarkCenterY as Number;
-    var taglineY as Number;
+    // Start screen. Only the two fixed points and the mark's width: the
+    // stack between them is measured and centred at draw time, because what
+    // fits underneath the wordmark differs per device and px() cannot say so.
     var gpsStatusY as Number;
-    var gpsDotsY as Number;
+    var markWidth as Number;
+    var contentBottom as Number;
 
     // Run screen.
     var quoteBandTop as Number;
@@ -30,8 +29,11 @@ class Layout {
     var summaryMarkCenterY as Number;
     var summaryMarkWidth as Number;
     var titleY as Number;
-    var heroTop as Number;
-    var gridTop as Number;
+    // Where the title goes when the footprint mark has been dropped for want
+    // of room; see SummaryScreen.
+    var titleYNoMark as Number;
+    // Only the bottom edge: the grid measures its own height and grows
+    // upward from here, so a fixed top would fight the font metrics.
     var gridBottom as Number;
 
     var hintY as Number;
@@ -43,11 +45,8 @@ class Layout {
             _inset = metrics.px(20);
 
             gpsStatusY = metrics.px(38);
-            gpsDotsY = metrics.px(76);
-            markCenterY = metrics.px(134);
+            contentBottom = metrics.height - metrics.px(24);
             markWidth = metrics.px(64);
-            wordmarkCenterY = metrics.px(244);
-            taglineY = metrics.px(322);
 
             quoteBandTop = metrics.px(96);
             quoteBandBottom = metrics.height - metrics.px(96);
@@ -56,20 +55,16 @@ class Layout {
             summaryMarkCenterY = metrics.px(38);
             summaryMarkWidth = metrics.px(24);
             titleY = metrics.px(76);
-            heroTop = metrics.px(108);
-            gridTop = metrics.px(200);
-            gridBottom = metrics.height - metrics.px(72);
+            titleYNoMark = metrics.px(20);
+            gridBottom = metrics.height - metrics.px(40);
 
             hintY = metrics.height - metrics.px(62);
         } else {
             _inset = metrics.px(14);
 
             gpsStatusY = metrics.px(24);
-            gpsDotsY = metrics.px(80);
-            markCenterY = metrics.px(152);
+            contentBottom = metrics.height - metrics.px(18);
             markWidth = metrics.px(58);
-            wordmarkCenterY = metrics.px(292);
-            taglineY = metrics.px(388);
 
             quoteBandTop = metrics.px(56);
             quoteBandBottom = metrics.height - metrics.px(70);
@@ -78,9 +73,8 @@ class Layout {
             summaryMarkCenterY = metrics.px(34);
             summaryMarkWidth = metrics.px(22);
             titleY = metrics.px(62);
-            heroTop = metrics.px(90);
-            gridTop = metrics.px(184);
-            gridBottom = metrics.height - metrics.px(52);
+            titleYNoMark = metrics.px(16);
+            gridBottom = metrics.height - metrics.px(30);
 
             hintY = metrics.height - metrics.px(40);
         }

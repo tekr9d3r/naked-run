@@ -113,6 +113,43 @@ module Hud {
         }
     }
 
+    // Whether the text can be wrapped into the band at `tier` or smaller with
+    // every line inside the circle.
+    //
+    // This exists because the fitters below it are all last-resort draws: both
+    // fitTier() and drawWrappedBlock() step down to tier 0 and then render
+    // whatever they have, fitting or not, because a quote must always appear.
+    // On a 208 px round screen a 26-character line does not fit the chord even
+    // at the smallest font Garmin has, so that fallback silently clips the
+    // text at both edges.
+    //
+    // Optional copy should vanish rather than be shown broken, so callers that
+    // can live without a line ask this first and skip drawing when it says no.
+    function wrappedFits(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, text as String, bandTop as Number, bandBottom as Number, tier as Number) as Boolean {
+        var bandCenter = (bandTop + bandBottom) / 2;
+
+        for (var t = tier; t >= 0; t -= 1) {
+            var font = metrics.fontFor(t);
+            var lineH = dc.getFontHeight(font);
+
+            var lines = wrapLines(dc, font, text,
+                2 * layout.safeHalfWidth(metrics, bandCenter, bandCenter));
+            var blockH = lines.size() * lineH;
+            var top = bandCenter - blockH / 2;
+
+            lines = wrapLines(dc, font, text,
+                2 * layout.safeHalfWidth(metrics, top, top + blockH));
+            blockH = lines.size() * lineH;
+            top = bandCenter - blockH / 2;
+
+            if (blockH <= bandBottom - bandTop
+                    && linesFit(dc, metrics, layout, lines, font, top, lineH)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function linesFit(dc as Graphics.Dc, metrics as ScreenMetrics, layout as Layout, lines as Array<String>, font as Graphics.FontType, top as Number, lineH as Number) as Boolean {
         for (var i = 0; i < lines.size(); i += 1) {
             var lineTop = top + i * lineH;
